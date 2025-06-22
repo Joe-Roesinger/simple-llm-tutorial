@@ -41,25 +41,27 @@ def getVectoryStoreFromEmbedding(embeddings):
     return InMemoryVectorStore(embeddings)
 
 def indexDocs(vectore_store, splits):
-    return vectore_store.add_documents(documents=splits)
+    vectore_store.add_documents(documents=splits)
 
 def similarity_search(vector_store, search):
-    return vector_store.similarity_search(search)
-
-async def asimilarity_search(vector_store, search):
-    return await vector_store.asimilarity_search(search)
+    return vector_store.similarity_search_with_score(search)
 
 def embedded_search(vectore_store, embeddings, search):
     embedding = embeddings.embed_query(search)
     return vectore_store.similarity_search_by_vector(embedding)
 
-def printResults(type, results, score):
+def printResults(type, results):
     print("#" * 20)
-    print(f"#{type:^18#}")
+    print(f"#{type:^18}#")
     print("#" * 20)
     print("\nRESULTS")
+    print("-------\n")
     print(results)
-    print("\nSCORE: {score}")
+
+def printResultsWithScore(type, results):
+    result, score = results[0]
+    printResults(type, result)
+    print(f"\nSCORE: {score}")
 
 def semantic_search():
     validateVoyageApi()
@@ -69,12 +71,10 @@ def semantic_search():
     store = getVectoryStoreFromEmbedding(embeddings)
     indexDocs(store, splits)
     user_text = input("What would you like to know about Nike?\n>")
-    similarity_results, similarity_score = similarity_search(store, user_text)
-    asimilarity_results, asimilarity_score = asimilarity_search(store, user_text)
-    embedded_results, embedded_score = embedded_search(store, embeddings, user_text)
+    similarity_results = similarity_search(store, user_text)
+    embedded_results = embedded_search(store, embeddings, user_text)
 
-    printResults("Similarity", similarity_results, similarity_score)
-    printResults("Asimilarity", asimilarity_results, asimilarity_score)
-    printResults("Embedded", embedded_results, embedded_score)
+    printResultsWithScore("Similarity", similarity_results)
+    printResults("Embedded", embedded_results[0])
 
 semantic_search()
