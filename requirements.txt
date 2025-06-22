@@ -1,0 +1,4 @@
+langchain[anthropic]
+langchain-voyageai
+langchain-community
+pypdf
